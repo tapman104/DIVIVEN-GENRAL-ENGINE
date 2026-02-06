@@ -1,0 +1,304 @@
+.app-container {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  align-items: center;
+  padding: 40px 0;
+}
+
+header {
+  text-align: center;
+}
+
+header h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 32px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+header p {
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+.game-layout {
+  display: flex;
+  gap: 80px;
+  align-items: flex-start;
+}
+
+.control-panel {
+  width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+
+/* Move List styling */
+.move-list-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 180px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.panel-header {
+  font-size: 10px;
+  color: var(--text-secondary);
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+.move-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-right: 4px;
+}
+
+.move-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.move-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+
+.move-row {
+  display: grid;
+  grid-template-columns: 24px 1fr 1fr;
+  font-family: 'Outfit', sans-serif;
+  font-size: 12px;
+  color: var(--text-primary);
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+.move-num {
+  color: var(--text-secondary);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Graveyard Styling */
+.graveyard {
+  height: 32px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 8px;
+  margin-bottom: 8px;
+  /* margin-top handles bottom graveyard */
+}
+
+.graveyard:last-of-type {
+  margin-top: 8px;
+  margin-bottom: 0;
+}
+
+.graveyard-pieces {
+  display: flex;
+  align-items: center;
+  height: 24px;
+}
+
+.dead-piece {
+  width: 20px;
+  height: 20px;
+  margin-right: -8px;
+  /* Stack effect */
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5));
+  transition: transform 0.2s;
+}
+
+.dead-piece:hover {
+  transform: translateY(-4px) scale(1.2);
+  z-index: 10;
+}
+
+.material-advantage {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.status-group {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.status h3 {
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.engine-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.telemetry-line {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 4px;
+}
+
+.telemetry-line .label {
+  font-size: 10px;
+  color: var(--text-secondary);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.telemetry-line .value {
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-primary);
+}
+
+.risk-visualizer {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.risk-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-secondary);
+  letter-spacing: 1px;
+}
+
+.risk-bar-bg {
+  height: 2px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.risk-bar-fill {
+  height: 100%;
+  transition: width 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+.difficulty {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.difficulty label {
+  font-size: 10px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.slider-container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+input[type=range] {
+  flex: 1;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.05);
+  appearance: none;
+  outline: none;
+}
+
+input[type=range]::-webkit-slider-thumb {
+  appearance: none;
+  width: 10px;
+  height: 10px;
+  background: var(--text-primary);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.level-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--accent-color);
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.btn-primary {
+  height: 48px;
+  background: var(--text-primary);
+  color: #000;
+  border: none;
+  border-radius: 2px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+}
+
+.btn-primary:hover {
+  background: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(255, 255, 255, 0.1);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  padding: 10px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.2s;
+}
+
+.btn-ghost:hover {
+  color: var(--text-primary);
+  border-color: var(--text-primary);
+}
+
+@media (max-width: 900px) {
+  .game-layout {
+    flex-direction: column;
+    align-items: center;
+    gap: 48px;
+  }
+}
