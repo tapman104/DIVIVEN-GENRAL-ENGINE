@@ -1,4 +1,12 @@
+```json
 {
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "src/**/*.test.ts",
+    "src/**/*.spec.ts"
+  ],
   "name": "ux",
   "private": true,
   "version": "0.0.0",
@@ -25,6 +33,7 @@
     "globals": "^16.5.0",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
-    "vite": "^7.2.4"
+    "vite": "^7.2.4",
+    "vitest": "^3.0.0"
   }
 }
