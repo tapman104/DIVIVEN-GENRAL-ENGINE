@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { perft } from './perft.js';
-import { parseFEN } from './board.js';
+import { perft } from './perft';
+import { parseFEN } from './fen';
 
 describe('Perft Depth 1', () => {
     it('should return 20 for the starting position at depth 1', () => {

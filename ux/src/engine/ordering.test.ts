@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { orderMoves } from './ordering.js';
-import { parseFEN } from './board.js';
-import { generateLegalMoves } from './rules.js';
+import { orderMoves } from './ordering';
+import { parseFEN } from './fen';
+import { generateLegalMoves } from './rules';
 
 describe('Move Ordering', () => {
     it('should prioritize captures over non-captures', () => {

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { search } from './search.js';
-import { parseFEN } from './board.js';
+import { search } from './search';
+import { parseFEN } from './fen';
 
 describe('Search', () => {
     it('should take a hanging queen', () => {

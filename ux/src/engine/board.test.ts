@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { parseFEN, toFEN, cloneState, renderBoard, getPiece } from './board.js';
+import { cloneState, renderBoard, getPiece } from './board';
+import { parseFEN, toFEN } from './fen';
 
 describe('FEN Parsing', () => {
     it('should parse the starting position correctly', () => {

@@ -1,5 +1,5 @@
-import type { GameState, PieceType, Piece, Color, Square } from './types';
-import { isSquareAttacked, findKing } from './rules';
+import type { GameState, PieceType, Color, Square } from './types';
+import { findKing } from './rules';
 
 const MATERIAL_VALUES: Record<PieceType, number> = {
     p: 100,
@@ -77,7 +77,7 @@ const KING_PST = [
     20, 30, 10, 0, 0, 10, 30, 20
 ];
 
-const PST: Record<PieceType, number[]> = {
+const MG_PST: Record<PieceType, number[]> = {
     p: PAWN_PST,
     n: KNIGHT_PST,
     b: BISHOP_PST,
@@ -86,8 +86,51 @@ const PST: Record<PieceType, number[]> = {
     k: KING_PST
 };
 
+// Endgame PSTs
+const EG_KING_PST = [
+    -50, -40, -30, -20, -20, -30, -40, -50,
+    -30, -20, -10, 0, 0, -10, -20, -30,
+    -30, -10, 20, 30, 30, 20, -10, -30,
+    -30, -10, 30, 40, 40, 30, -10, -30,
+    -30, -10, 30, 40, 40, 30, -10, -30,
+    -30, -10, 20, 30, 30, 20, -10, -30,
+    -30, -30, 0, 0, 0, 0, -30, -30,
+    -50, -30, -30, -30, -30, -30, -30, -50
+];
+
+const EG_PAWN_PST = [
+    0, 0, 0, 0, 0, 0, 0, 0,
+    100, 100, 100, 100, 100, 100, 100, 100, // Very strong near promotion
+    50, 50, 50, 50, 50, 50, 50, 50,
+    20, 20, 20, 20, 20, 20, 20, 20,
+    10, 10, 10, 10, 10, 10, 10, 10,
+    5, 5, 5, 5, 5, 5, 5, 5,
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0
+];
+
+const EG_PST: Record<PieceType, number[]> = {
+    p: EG_PAWN_PST,
+    n: KNIGHT_PST,
+    b: BISHOP_PST,
+    r: ROOK_PST,
+    q: QUEEN_PST,
+    k: EG_KING_PST
+};
+
+const PHASE_WEIGHTS: Record<PieceType, number> = {
+    p: 0,
+    n: 1,
+    b: 1,
+    r: 2,
+    q: 4,
+    k: 0
+};
+
 export function evaluate(state: GameState, riskFactor: number = 0): number {
-    let score = 0;
+    let mgScore = 0;
+    let egScore = 0;
+    let totalPhase = 0;
     const { board } = state;
 
     const whiteKingPos = findKing(state, 'w');
@@ -99,66 +142,101 @@ export function evaluate(state: GameState, riskFactor: number = 0): number {
             if (!piece) continue;
 
             const materialValue = MATERIAL_VALUES[piece.type];
+            totalPhase += PHASE_WEIGHTS[piece.type];
 
-            // 1. PST
-            const table = PST[piece.type];
-            const pstIdx = piece.color === 'w' ? (r * 8 + f) : ((7 - r) * 8 + f);
-            const pstValue = table[pstIdx];
+            // 1. PST Interpolation
+            const mgIdx = piece.color === 'w' ? (r * 8 + f) : ((7 - r) * 8 + f);
+            const mgPstValue = MG_PST[piece.type][mgIdx];
+            const egPstValue = EG_PST[piece.type][mgIdx];
 
-            let pieceScore = materialValue + pstValue;
+            let mgPieceScore = materialValue + mgPstValue;
+            let egPieceScore = materialValue + egPstValue;
 
-            // 2. Hanging piece detection (Blunder prevention)
-            if (isPieceHanging(state, r, f, piece)) {
-                pieceScore -= (materialValue / 2);
-            }
-
-            // 3. Smart-Speed Heuristics (Aggression)
-            const square = { rank: r, file: f };
-
-            // King Attack Weight (Reward pieces near enemy king)
+            // 2. Proximity and Mobility
             const enemyKingPos = piece.color === 'w' ? blackKingPos : whiteKingPos;
             const distToKing = Math.max(Math.abs(r - enemyKingPos.rank), Math.abs(f - enemyKingPos.file));
-            if (distToKing <= 2 && piece.type !== 'k') {
-                pieceScore += (3 - distToKing) * 15; // Bonus for proximity to enemy king
+
+            if (piece.type !== 'k') {
+                if (distToKing <= 2) {
+                    const bonus = (3 - distToKing) * 15;
+                    mgPieceScore += bonus;
+                    egPieceScore += bonus * 0.5; // Less aggression in endgame mop-up
+                }
             }
 
-            // Central Mobility (d4, e4, d5, e5)
+            // Centrality
             if (r >= 3 && r <= 4 && f >= 3 && f <= 4) {
-                pieceScore += 10;
+                mgPieceScore += 10;
+                // No extra centality for non-king pieces in EG beyond PST
             }
 
-            // Passed Pawn Detection (Simplified)
+            // 3. Pawn Logic
+            const square = { rank: r, file: f };
             if (piece.type === 'p') {
                 if (isPassedPawn(state, square, piece.color)) {
-                    pieceScore += (piece.color === 'w' ? (7 - r) : r) * 20;
+                    const rankBonus = (piece.color === 'w' ? (7 - r) : r) * 20;
+                    mgPieceScore += rankBonus;
+                    egPieceScore += rankBonus * 2.5; // Massive pass-pawn weight in EG
                 }
-                // Pawn Chain (Protected by another pawn)
                 if (isPawnProtected(state, square, piece.color)) {
-                    pieceScore += 5;
+                    mgPieceScore += 5;
+                    egPieceScore += 10;
                 }
             }
 
-            score += piece.color === 'w' ? pieceScore : -pieceScore;
+            if (piece.color === 'w') {
+                mgScore += mgPieceScore;
+                egScore += egPieceScore;
+            } else {
+                mgScore -= mgPieceScore;
+                egScore -= egPieceScore;
+            }
         }
     }
 
-    // 4. AdaptX Risk Factor (Add high-variance noise if the engine is in "Risk Mode")
+    // 4. AdaptX Risk Factor
     if (riskFactor > 0.1) {
-        // Subtle randomization to emulate "human mistakes" or sharp, risky play
         const noise = (Math.random() - 0.5) * 100 * riskFactor;
-        score += noise;
+        mgScore += noise;
+        egScore += noise;
+    }
+
+    // 5. Tapering
+    // phase goes from 0 (Endgame) to 24 (Initial)
+    // We cap it for safety
+    const cappedPhase = Math.max(0, Math.min(24, totalPhase));
+    const phase = (cappedPhase * 256 + (24 / 2)) / 24;
+
+    // Interpolate: score = ((egScore * (256 - phase)) + (mgScore * phase)) / 256
+    let score = ((egScore * (256 - phase)) + (mgScore * phase)) / 256;
+
+    // 6. Endgame Mop-up
+    // Simplified mop-up: only if really winning and enemy has basically nothing
+    const wPoints = state.board.flat().filter(p => p && p.color === 'w').reduce((acc, p) => acc + PHASE_WEIGHTS[p!.type], 0);
+    const bPoints = state.board.flat().filter(p => p && p.color === 'b').reduce((acc, p) => acc + PHASE_WEIGHTS[p!.type], 0);
+
+    if ((wPoints === 0 && bPoints > 4) || (bPoints === 0 && wPoints > 4)) {
+        const winningColor = wPoints > 0 ? 'w' : 'b';
+        const losingKingPos = winningColor === 'w' ? blackKingPos : whiteKingPos;
+        const winningKingPos = winningColor === 'w' ? whiteKingPos : blackKingPos;
+
+        const centerDist = Math.max(3 - losingKingPos.rank, losingKingPos.rank - 4) + Math.max(3 - losingKingPos.file, losingKingPos.file - 4);
+        const distBetweenKings = Math.abs(winningKingPos.rank - losingKingPos.rank) + Math.abs(winningKingPos.file - losingKingPos.file);
+
+        const mopUpScore = (centerDist * 10) + (14 - distBetweenKings) * 5;
+        score += (score > 0 ? mopUpScore : -mopUpScore);
     }
 
     return score;
 }
 
-function isPieceHanging(state: GameState, r: number, f: number, piece: Piece): boolean {
-    const square = { rank: r, file: f };
-    const opponentColor = piece.color === 'w' ? 'b' : 'w';
-    if (!isSquareAttacked(state, square, opponentColor)) return false;
-    if (!isSquareAttacked(state, square, piece.color)) return true;
-    return false;
-}
+// function isPieceHanging(state: GameState, r: number, f: number, piece: Piece): boolean {
+//     const square = { rank: r, file: f };
+//     const opponentColor = piece.color === 'w' ? 'b' : 'w';
+//     if (!isSquareAttacked(state, square, opponentColor)) return false;
+//     if (!isSquareAttacked(state, square, piece.color)) return true;
+//     return false;
+// }
 
 function isPassedPawn(state: GameState, square: Square, color: Color): boolean {
     const direction = color === 'w' ? -1 : 1;

@@ -1,124 +1,10 @@
-import type { GameState, Color, Square, Move } from './types';
+import type { GameState, Square, Move } from './types';
 import { generateMoves } from './movegen';
 import { applyMove } from './board';
+import { isSquareAttacked, findKing } from './attacks';
 
-export function countAttackers(state: GameState, square: Square, attackerColor: Color): number {
-    const { board } = state;
-    let count = 0;
-
-    // 1. Knight attacks
-    const knightOffsets = [
-        [-2, -1], [-2, 1], [-1, -2], [-1, 2],
-        [1, -2], [1, 2], [2, -1], [2, 1]
-    ];
-    for (const [dr, df] of knightOffsets) {
-        const r = square.rank + dr;
-        const f = square.file + df;
-        if (r >= 0 && r < 8 && f >= 0 && f < 8) {
-            const piece = board[r][f];
-            if (piece && piece.type === 'n' && piece.color === attackerColor) count++;
-        }
-    }
-
-    // 2. King attacks
-    const kingOffsets = [
-        [-1, -1], [-1, 0], [-1, 1],
-        [0, -1], [0, 1],
-        [1, -1], [1, 0], [1, 1]
-    ];
-    for (const [dr, df] of kingOffsets) {
-        const r = square.rank + dr;
-        const f = square.file + df;
-        if (r >= 0 && r < 8 && f >= 0 && f < 8) {
-            const piece = board[r][f];
-            if (piece && piece.type === 'k' && piece.color === attackerColor) count++;
-        }
-    }
-
-    // 3. Pawn attacks
-    const pawnDirection = attackerColor === 'w' ? 1 : -1;
-    const pawnFiles = [square.file - 1, square.file + 1];
-    const attackerRank = square.rank + pawnDirection;
-    if (attackerRank >= 0 && attackerRank < 8) {
-        for (const f of pawnFiles) {
-            if (f >= 0 && f < 8) {
-                const piece = board[attackerRank][f];
-                if (piece && piece.type === 'p' && piece.color === attackerColor) count++;
-            }
-        }
-    }
-
-    // 4. Sliding pieces
-    const directions = [
-        { dr: -1, df: 0, types: ['r', 'q'] },
-        { dr: 1, df: 0, types: ['r', 'q'] },
-        { dr: 0, df: -1, types: ['r', 'q'] },
-        { dr: 0, df: 1, types: ['r', 'q'] },
-        { dr: -1, df: -1, types: ['b', 'q'] },
-        { dr: -1, df: 1, types: ['b', 'q'] },
-        { dr: 1, df: -1, types: ['b', 'q'] },
-        { dr: 1, df: 1, types: ['b', 'q'] },
-    ];
-
-    for (const { dr, df, types } of directions) {
-        let r = square.rank + dr;
-        let f = square.file + df;
-        while (r >= 0 && r < 8 && f >= 0 && f < 8) {
-            const piece = board[r][f];
-            if (piece) {
-                if (piece.color === attackerColor && types.includes(piece.type)) count++;
-                break;
-            }
-            r += dr;
-            f += df;
-        }
-    }
-
-    return count;
-}
-
-export function isSquareAttacked(state: GameState, square: Square, attackerColor: Color): boolean {
-    return countAttackers(state, square, attackerColor) > 0;
-}
-
-export interface SquareAnalysis {
-    attackers: number;
-    defenders: number;
-    safetyScore: number;
-}
-
-export function getSquareAnalysis(state: GameState, square: Square): SquareAnalysis {
-    const piece = state.board[square.rank][square.file];
-    if (!piece) return { attackers: 0, defenders: 0, safetyScore: 0 };
-
-    const opponentColor = piece.color === 'w' ? 'b' : 'w';
-    const attackers = countAttackers(state, square, opponentColor);
-    const defenders = countAttackers(state, square, piece.color);
-
-    // Simplistic safety: neutral is 0, unsafe is negative, safe is positive
-    let safetyScore = defenders - attackers;
-    if (attackers > 0 && defenders === 0) safetyScore -= 5; // Hanging
-
-    return { attackers, defenders, safetyScore };
-}
-
-export function findKing(state: GameState, color: Color): Square {
-    for (let r = 0; r < 8; r++) {
-        for (let f = 0; f < 8; f++) {
-            const piece = state.board[r][f];
-            if (piece && piece.type === 'k' && piece.color === color) {
-                return { rank: r, file: f };
-            }
-        }
-    }
-    throw new Error(`King not found for color ${color}`);
-}
-
-export function isCheck(state: GameState, color: Color): boolean {
-    const kingPos = findKing(state, color);
-    const opponentColor = color === 'w' ? 'b' : 'w';
-    return isSquareAttacked(state, kingPos, opponentColor);
-}
+export { isSquareAttacked, isCheck, findKing, getSquareAnalysis, countAttackers } from './attacks';
+export type { SquareAnalysis } from './attacks'; // Re-export for compatibility
 
 export function generateLegalMoves(state: GameState): Move[] {
     const pseudoMoves = generateMoves(state);
@@ -127,11 +13,47 @@ export function generateLegalMoves(state: GameState): Move[] {
     for (const move of pseudoMoves) {
         const nextState = applyMove(state, move);
         // After my move, my King must not be attacked by the opponent
-        const kingPos = findKing(nextState, state.turn);
-        if (!isSquareAttacked(nextState, kingPos, nextState.turn)) {
-            legalMoves.push(move);
+        try {
+            const kingPos = findKing(nextState, state.turn);
+            if (!isSquareAttacked(nextState, kingPos, nextState.turn)) {
+                // Check if this move gives check to the opponent?
+                // For SAN generation, we might want to set isCheck.
+                // But that is expensive. We can do it on demand.
+                legalMoves.push(move);
+            }
+        } catch (e) {
+            // King captured? Should not happen in legal chess.
+            // But if we are testing or in weird state...
         }
     }
 
     return legalMoves;
+}
+
+export function parseMove(state: GameState, moveStr: string): Move | null {
+    const fromStr = moveStr.substring(0, 2);
+    const toStr = moveStr.substring(2, 4);
+    const promo = moveStr.length > 4 ? moveStr[4] : undefined;
+
+    const from = parseSquare(fromStr);
+    const to = parseSquare(toStr);
+
+    if (!from || !to) return null;
+
+    const legalMoves = generateLegalMoves(state);
+    return legalMoves.find(m =>
+        m.from.rank === from.rank &&
+        m.from.file === from.file &&
+        m.to.rank === to.rank &&
+        m.to.file === to.file &&
+        m.promotion === promo
+    ) || null;
+}
+
+function parseSquare(s: string): Square | null {
+    if (s.length !== 2) return null;
+    const file = s.charCodeAt(0) - 'a'.charCodeAt(0);
+    const rank = 8 - parseInt(s[1], 10);
+    if (file < 0 || file > 7 || rank < 0 || rank > 7) return null;
+    return { rank, file };
 }

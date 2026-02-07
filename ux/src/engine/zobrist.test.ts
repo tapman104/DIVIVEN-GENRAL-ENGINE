@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { generateZobristKey } from './zobrist.js';
-import { parseFEN } from './board.js';
+import { generateZobristKey } from './zobrist';
+import { parseFEN } from './fen';
 
 describe('Zobrist Hashing', () => {
     it('should generate the same key for the same position', () => {

@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import type { GameState, Move, Square } from '../engine/types';
-import { getSquareAnalysis } from '../engine/rules';
-import type { SquareAnalysis } from '../engine/rules';
 import './Chessboard.css';
 
 interface ChessboardProps {
@@ -33,7 +31,6 @@ export const Chessboard: React.FC<ChessboardProps> = ({
 }) => {
     const [selectedSquare, setSelectedSquare] = useState<Square | null>(null);
     const [hoveredSquare, setHoveredSquare] = useState<Square | null>(null);
-    const [visionData, setVisionData] = useState<SquareAnalysis | null>(null);
 
     const handleSquareClick = (square: Square) => {
         if (selectedSquare) {
@@ -61,12 +58,10 @@ export const Chessboard: React.FC<ChessboardProps> = ({
 
     const handleMouseEnter = (square: Square) => {
         setHoveredSquare(square);
-        setVisionData(getSquareAnalysis(state, square));
     };
 
     const handleMouseLeave = () => {
         setHoveredSquare(null);
-        setVisionData(null);
     };
 
     const isSelected = (r: number, f: number) =>
@@ -103,7 +98,8 @@ export const Chessboard: React.FC<ChessboardProps> = ({
                         <img key={i} src={getPieceIcon(p, 'b')} className="dead-piece" alt="" />
                     ))}
                 </div>
-                {score > 0 && <div className="material-advantage">+{score}</div>}
+                {/* Show advantage if Black is winning (score < 0) */}
+                {score < 0 && <div className="material-advantage">+{Math.abs(score)}</div>}
             </div>
 
             {/* Rank Coordinates */}
@@ -141,13 +137,7 @@ export const Chessboard: React.FC<ChessboardProps> = ({
                     ))}
                 </div>
 
-                {visionData && (
-                    <div className="vision-hud-capsule">
-                        <div className="vision-stat"><small>DEFE</small> {visionData.defenders}</div>
-                        <div className="vision-stat"><small>ATTR</small> {visionData.attackers}</div>
-                        <div className={`vision-safety-glow ${visionData.safetyScore < 0 ? 'danger' : 'safe'}`} />
-                    </div>
-                )}
+                {/* vision-hud-capsule removed */}
             </div>
 
             {/* File Coordinates */}
@@ -162,7 +152,8 @@ export const Chessboard: React.FC<ChessboardProps> = ({
                         <img key={i} src={getPieceIcon(p, 'w')} className="dead-piece" alt="" />
                     ))}
                 </div>
-                {score < 0 && <div className="material-advantage">+{Math.abs(score)}</div>}
+                {/* Show advantage if White is winning (score > 0) */}
+                {score > 0 && <div className="material-advantage">+{score}</div>}
             </div>
         </div>
     );

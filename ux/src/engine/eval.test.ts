@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { evaluate } from './eval.js';
-import { parseFEN } from './board.js';
+import { evaluate } from './eval';
+import { parseFEN } from './fen';
 
 describe('Evaluation', () => {
     it('should be symmetric for the starting position', () => {

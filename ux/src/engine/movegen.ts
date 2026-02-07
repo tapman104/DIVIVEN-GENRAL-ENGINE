@@ -1,5 +1,5 @@
 import type { GameState, Move, Square, Piece, Color } from './types';
-import { isSquareAttacked, generateLegalMoves } from './rules';
+import { isSquareAttacked } from './attacks';
 
 export function generateMoves(state: GameState): Move[] {
     const moves: Move[] = [];
@@ -185,36 +185,10 @@ function createMove(from: Square, to: Square, capturedPiece?: Piece): Move {
         to,
         capturedPiece,
         isCapture: !!capturedPiece,
-        isCheck: false,
+        isCheck: false, // Will be set by makeMove or similar if needed for SAN?
+        // Actually generateLegalMoves sets it? No, we need to set it.
+        // But for move generation, we don't calculate isCheck yet for performance.
         isCastling: false,
         isEnPassant: false
     };
-}
-
-export function parseMove(state: GameState, moveStr: string): Move | null {
-    const fromStr = moveStr.substring(0, 2);
-    const toStr = moveStr.substring(2, 4);
-    const promo = moveStr.length > 4 ? moveStr[4] : undefined;
-
-    const from = parseSquare(fromStr);
-    const to = parseSquare(toStr);
-
-    if (!from || !to) return null;
-
-    const legalMoves = generateLegalMoves(state);
-    return legalMoves.find(m =>
-        m.from.rank === from.rank &&
-        m.from.file === from.file &&
-        m.to.rank === to.rank &&
-        m.to.file === to.file &&
-        m.promotion === promo
-    ) || null;
-}
-
-function parseSquare(s: string): Square | null {
-    if (s.length !== 2) return null;
-    const file = s.charCodeAt(0) - 'a'.charCodeAt(0);
-    const rank = 8 - parseInt(s[1]);
-    if (file < 0 || file > 7 || rank < 0 || rank > 7) return null;
-    return { rank, file };
 }

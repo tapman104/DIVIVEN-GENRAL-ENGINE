@@ -1,0 +1,284 @@
+.chessboard-outer {
+    position: relative;
+    padding: 24px;
+    background: rgba(30, 30, 30, 0.4);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-radius: 24px;
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.4),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: box-shadow 0.3s ease-in-out, border-color 0.3s ease-in-out, transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    transform: scale(0.95);
+    opacity: 0.8;
+}
+
+.chessboard-outer.thinking {
+    box-shadow: 0 0 60px var(--accent-color);
+    /* Use dynamic accent */
+    border-color: var(--accent-color);
+    animation: breathe 3s infinite ease-in-out;
+}
+
+@keyframes breathe {
+    0% {
+        box-shadow: 0 40px 100px rgba(0, 0, 0, 0.7);
+        border-color: rgba(255, 255, 255, 0.05);
+    }
+
+    50% {
+        box-shadow: 0 0 80px var(--accent-color);
+        border-color: var(--accent-color);
+    }
+
+    100% {
+        box-shadow: 0 40px 100px rgba(0, 0, 0, 0.7);
+        border-color: rgba(255, 255, 255, 0.05);
+    }
+}
+
+.chessboard-container {
+    position: relative;
+    width: fit-content;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #262626;
+    border: 4px solid #262626;
+}
+
+.chessboard {
+    display: grid;
+    grid-template-columns: repeat(8, 64px);
+    grid-template-rows: repeat(8, 64px);
+    border: none;
+    user-select: none;
+    box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.2);
+}
+
+.square {
+    width: 64px;
+    height: 64px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+    transition: filter 0.1s;
+    will-change: filter;
+}
+
+.square.light {
+    background-color: var(--board-light);
+}
+
+.square.dark {
+    background-color: var(--board-dark);
+}
+
+.square.hovered {
+    filter: brightness(1.1);
+}
+
+/* Coordinates Styling */
+.coords-ranks {
+    position: absolute;
+    left: 4px;
+    top: 56px;
+    /* Adjusted for top graveyard */
+    display: flex;
+    flex-direction: column;
+    height: 512px;
+    justify-content: space-around;
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.2);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.coords-files {
+    display: flex;
+    width: 512px;
+    justify-content: space-around;
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.2);
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 4px;
+}
+
+/* Premium Selection Square */
+.selection-ring {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.2);
+    /* Subtle highlight */
+    box-shadow: inset 0 0 12px var(--accent-color);
+    /* Inner glow */
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    pointer-events: none;
+    z-index: 5;
+}
+
+/* Faint Last Move */
+.square.last-move::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 122, 255, 0.15);
+    pointer-events: none;
+}
+
+.piece {
+    width: 90%;
+    height: 90%;
+    user-select: none;
+    pointer-events: none;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+    z-index: 2;
+}
+
+/* Quiet Legal Dots */
+.legal-dot {
+    width: 12px;
+    height: 12px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    position: absolute;
+    opacity: 0.4;
+    z-index: 10;
+}
+
+/* Vision HUD Capsule */
+.vision-hud-capsule {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(12px);
+    padding: 6px 16px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    z-index: 20;
+    animation: slide-up 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+@keyframes slide-up {
+    from {
+        opacity: 0;
+        transform: translate(-50%, 20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+
+.vision-stat {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.vision-stat small {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 8px;
+}
+
+.vision-safety-glow {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.vision-safety-glow.safe {
+    background: #34c759;
+    box-shadow: 0 0 10px #34c759;
+}
+
+.vision-safety-glow.danger {
+    background: #ff3b30;
+    box-shadow: 0 0 10px #ff3b30;
+}
+
+
+/* New Graveyard Styles inside Board */
+.graveyard {
+    width: 512px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 4px;
+    box-sizing: border-box;
+}
+
+.graveyard.top {
+    margin-bottom: 4px;
+}
+
+.graveyard.bottom {
+    margin-top: 8px;
+}
+
+.graveyard-pieces {
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+
+.dead-piece {
+    width: 24px;
+    height: 24px;
+    margin-right: -10px;
+    /* Stronger stack for compact look */
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5));
+    transition: transform 0.2s;
+}
+
+.dead-piece:hover {
+    transform: translateY(-4px) scale(1.2);
+    z-index: 10;
+}
+
+.material-advantage {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 2px 6px;
+    border-radius: 2px;
+}
+
+@media (max-width: 600px) {
+    .chessboard {
+        grid-template-columns: repeat(8, 11vw);
+        grid-template-rows: repeat(8, 11vw);
+    }
+
+    .square {
+        width: 11vw;
+        height: 11vw;
+    }
+
+    .coords-ranks,
+    .coords-files,
+    .graveyard {
+        display: none;
+    }
+}

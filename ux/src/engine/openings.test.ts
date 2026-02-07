@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getBookMove } from './openings.js';
+import { getBookMove } from './openings';
 
 describe('Opening Book', () => {
     it('should return a valid starting move for the initial position', () => {
