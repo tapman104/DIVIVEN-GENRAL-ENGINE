@@ -71,14 +71,51 @@ header p {
 }
 
 .game-layout {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-areas:
+    "board"
+    "panel";
   gap: 40px;
-  align-items: flex-start;
-  justify-content: center;
-  flex-wrap: wrap;
   padding: 0 20px;
   width: 100%;
+  max-width: 1600px;
+  /* Prevent overly wide screens stretching it too much */
   box-sizing: border-box;
+  justify-items: center;
+  /* Center items in their cells */
+}
+
+/* Target the Board Container (First child div) */
+.game-layout>div:first-child {
+  grid-area: board;
+  width: 100%;
+  max-width: 800px;
+  /* Ensure board doesn't get ridiculously huge */
+  display: flex;
+  justify-content: center;
+}
+
+.control-panel {
+  grid-area: panel;
+  /* preserve existing styles */
+}
+
+/* Desktop Layout: Sidebar Right */
+@media (min-width: 1000px) {
+  .game-layout {
+    grid-template-columns: 1fr 350px;
+    /* Flexible Board, Fixed Sidebar */
+    grid-template-areas: "board panel";
+    /* BOARD LEFT, PANEL RIGHT */
+    align-items: start;
+    justify-items: center;
+  }
+
+  .game-layout>div:first-child {
+    justify-content: center;
+    /* Center board in valid space */
+  }
 }
 
 .control-panel {
@@ -100,6 +137,39 @@ header p {
   box-shadow:
     0 20px 60px rgba(0, 0, 0, 0.6),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Mobile Optimization */
+@media (max-width: 900px) {
+  .game-layout {
+    gap: 20px;
+    padding: 0 10px;
+  }
+
+  header h1 {
+    font-size: 32px;
+    /* Smaller title */
+  }
+
+  header p {
+    font-size: 10px;
+    letter-spacing: 2px;
+  }
+
+  .control-panel {
+    max-width: 100%;
+    /* Full width on mobile */
+    padding: 16px;
+    gap: 20px;
+  }
+
+  .stats-grid {
+    gap: 8px;
+  }
+
+  .stat-item .value {
+    font-size: 14px;
+  }
 }
 
 /* ... (Existing Move List styles are okay, maybe tweak opacity) ... */

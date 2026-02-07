@@ -372,8 +372,8 @@ function App() {
       )}
 
       <header>
-        <h1 style={{ textShadow: `0 0 30px ${themeColor}66` }}>DIVIVEN GENERAL</h1>
-        <p>Advanced Strategic Intelligence</p>
+        <h1 style={{ textShadow: `0 0 30px ${themeColor}66`, fontSize: '32px' }}>DIVINE GENERAL SILVA</h1>
+        <p>JS CHESS ENGINE</p>
       </header>
 
       <main>
