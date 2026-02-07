@@ -1,12 +1,4 @@
-```json
 {
-  "include": [
-    "src"
-  ],
-  "exclude": [
-    "src/**/*.test.ts",
-    "src/**/*.spec.ts"
-  ],
   "name": "ux",
   "private": true,
   "version": "0.0.0",
