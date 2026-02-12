@@ -32,6 +32,8 @@ The engine scores positions using a static evaluation function:
 - **Transposition Table:** Caches results using Zobrist hashing.
 - **Quiescence Search:** Extends search for captures to avoid the horizon effect.
 
+- **Engine Reference:** See the full engine API and configuration reference in [docs/engine.md](docs/engine.md).
+
 ## 6. Deployment (`vercel.json`)
 The project is optimized for Vercel with SPA routing rewrites to ensure `index.html` handles all navigation.
 

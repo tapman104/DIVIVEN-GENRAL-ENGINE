@@ -36,3 +36,5 @@ Diviven General Engine is designed as a modular, typesafe chess engine built wit
 - **Immutability:** Every board update returns a *new* state, ensuring thread safety and simplifying search history/undo.
 - **Fail-Fast Testing:** Heavy reliance on Perft counts ensures that movegen bugs are caught immediately.
 - **Portable Architecture:** Separating the evaluation and search logic from the board representation allows for future optimizations (like bitboards) without rewriting the "AI" layer.
+
+- **Engine Reference:** A full engine API and configuration reference is available in [docs/engine.md](docs/engine.md).
