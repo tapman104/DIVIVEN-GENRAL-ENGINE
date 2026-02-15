@@ -1,14 +1,108 @@
 {
-  "name": "diviven-genral-engine",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "diviven-general-engine",
+  "version": "2.0.0",
+  "description": "High-performance embeddable chess engine for JavaScript/TypeScript - UI-agnostic, mobile-optimized, 10 difficulty levels",
+  "main": "./src/search.js",
+  "type": "module",
+  "types": "./src/types.ts",
+  "exports": {
+    ".": {
+      "import": "./src/search.js",
+      "types": "./src/types.ts"
+    },
+    "./search": {
+      "import": "./src/search.js",
+      "types": "./src/search.ts"
+    },
+    "./board": {
+      "import": "./src/board.js",
+      "types": "./src/board.ts"
+    },
+    "./rules": {
+      "import": "./src/rules.js",
+      "types": "./src/rules.ts"
+    },
+    "./eval": {
+      "import": "./src/eval.js",
+      "types": "./src/eval.ts"
+    },
+    "./bridge": {
+      "import": "./src/bridge.js",
+      "types": "./src/bridge.ts"
+    },
+    "./levels": {
+      "import": "./src/levels.js",
+      "types": "./src/levels.ts"
+    },
+    "./openings": {
+      "import": "./src/openings.js",
+      "types": "./src/openings.ts"
+    },
+    "./adaptx": {
+      "import": "./src/adaptx.js",
+      "types": "./src/adaptx.ts"
+    },
+    "./types": {
+      "import": "./src/types.js",
+      "types": "./src/types.ts"
+    },
+    "./movegen": {
+      "import": "./src/movegen.js",
+      "types": "./src/movegen.ts"
+    },
+    "./tt": {
+      "import": "./src/tt.js",
+      "types": "./src/tt.ts"
+    },
+    "./zobrist": {
+      "import": "./src/zobrist.js",
+      "types": "./src/zobrist.ts"
+    },
+    "./perft": {
+      "import": "./src/perft.js",
+      "types": "./src/perft.ts"
+    }
+  },
+  "files": [
+    "src/**/*.ts",
+    "src/**/*.js",
+    "docs/*.md",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "test": "vitest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "build": "tsc",
+    "prepublishOnly": "npm test && npm run typecheck"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs"
+  "keywords": [
+    "chess",
+    "chess-engine",
+    "chess-ai",
+    "game",
+    "ai",
+    "typescript",
+    "javascript",
+    "web-worker",
+    "mobile",
+    "embeddable",
+    "stockfish-alternative",
+    "alpha-beta",
+    "opening-book",
+    "transposition-table"
+  ],
+  "author": "DIVIVEN Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/diviven-general-engine.git"
+  },
+  "homepage": "https://github.com/yourusername/diviven-general-engine#readme",
+  "bugs": {
+    "url": "https://github.com/yourusername/diviven-general-engine/issues"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
 }

@@ -16,6 +16,7 @@ interface HistoryItem {
   move: Move;
   san: string;
   turn: 'w' | 'b';
+  prevState: GameState;
 }
 
 function App() {
@@ -86,13 +87,15 @@ function App() {
     const piece = state.board[move.from.rank][move.from.file];
     if (!piece) return;
 
+    const prevStateSnapshot = cloneState(state);
+
     // Check detection for SAN
     // We already have nextState, so we check if the opponent king is attacked
     // Ideally we'd use isCheck(nextState, nextState.turn) but we need to import it or assume
     // For now we use the move.isCheck flag which might be populated or we assume basic SAN
     const san = getSimpleSAN(move, piece, move.isCheck, false);
 
-    setHistory(prev => [...prev, { move, san, turn: state.turn }]);
+    setHistory(prev => [...prev, { move, san, turn: state.turn, prevState: prevStateSnapshot }]);
     setState(nextState);
     setLastMove(move);
 
@@ -149,7 +152,7 @@ function App() {
 
             setState(finalState);
             setLastMove(result.move);
-            setHistory(prev => [...prev, { move: result.move!, san, turn: 'b' }]);
+            setHistory(prev => [...prev, { move: result.move!, san, turn: 'b', prevState: cloneState(nextState) }]);
 
             const currentEval = result.score / 100;
 
@@ -235,6 +238,16 @@ function App() {
     setEngineStats({ depth: 0, nodes: 0, score: 0, pv: [] });
     setAdaptx({ userBlunderCount: 0, riskFactor: 0, stressLevel: 0 });
     setPrevEval(0);
+    bridge.current?.cancelSearch();
+    setIsThinking(false);
+  };
+
+  const handleUndo = () => {
+    if (history.length === 0) return;
+    const last = history[history.length - 1];
+    setState(last.prevState);
+    setHistory(prev => prev.slice(0, -1));
+    setLastMove(null);
     bridge.current?.cancelSearch();
     setIsThinking(false);
   };
@@ -503,7 +516,7 @@ function App() {
             <div className="actions">
               <button className="btn-primary" onClick={resetGame}>NEW GAME</button>
               <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                <button className="btn-ghost" onClick={() => { }}>UNDO</button>
+                <button className="btn-ghost" onClick={handleUndo}>UNDO</button>
                 <button className="btn-ghost" onClick={() => setIsMuted(!isMuted)}>
                   {isMuted ? 'UNMUTE' : 'MUTE'}
                 </button>

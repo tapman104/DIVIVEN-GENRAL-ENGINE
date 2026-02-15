@@ -27,8 +27,3 @@
 - [x] Message Bridge (`bridge.ts`)
 - [x] Cooperative Cancellation
 - [x] All 32 Unit Tests Passing
-
-## Phase 5: Production & UI (NEXT)
-- [ ] Time Controls (Timed search)
-- [ ] Front-end Chessboard Integration
-- [ ] Mobile-specific performance tuning
