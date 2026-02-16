@@ -245,8 +245,25 @@ function App() {
   const handleUndo = () => {
     if (history.length === 0) return;
     const last = history[history.length - 1];
-    setState(last.prevState);
-    setHistory(prev => prev.slice(0, -1));
+
+    // If last move was by engine (black), undo both the engine move and the preceding
+    // player move so the board returns to the position before the player's move.
+    if (last.turn === 'b') {
+      if (history.length >= 2) {
+        const beforePlayer = history[history.length - 2].prevState;
+        setState(beforePlayer);
+        setHistory(prev => prev.slice(0, -2));
+      } else {
+        // Fallback: no player move recorded, just revert to last.prevState
+        setState(last.prevState);
+        setHistory(prev => prev.slice(0, -1));
+      }
+    } else {
+      // Last move was by player, just undo that one move
+      setState(last.prevState);
+      setHistory(prev => prev.slice(0, -1));
+    }
+
     setLastMove(null);
     bridge.current?.cancelSearch();
     setIsThinking(false);
