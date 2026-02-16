@@ -2,65 +2,65 @@
   "name": "diviven-general-engine",
   "version": "2.0.0",
   "description": "High-performance embeddable chess engine for JavaScript/TypeScript - UI-agnostic, mobile-optimized, 10 difficulty levels",
-  "main": "./src/search.js",
+  "main": "./dist/search.js",
   "type": "module",
-  "types": "./src/types.ts",
+  "types": "./dist/types.d.ts",
   "exports": {
     ".": {
-      "import": "./src/search.js",
-      "types": "./src/types.ts"
+      "import": "./dist/search.js",
+      "types": "./dist/types.d.ts"
     },
     "./search": {
-      "import": "./src/search.js",
-      "types": "./src/search.ts"
+      "import": "./dist/search.js",
+      "types": "./dist/search.d.ts"
     },
     "./board": {
-      "import": "./src/board.js",
-      "types": "./src/board.ts"
+      "import": "./dist/board.js",
+      "types": "./dist/board.d.ts"
     },
     "./rules": {
-      "import": "./src/rules.js",
-      "types": "./src/rules.ts"
+      "import": "./dist/rules.js",
+      "types": "./dist/rules.d.ts"
     },
     "./eval": {
-      "import": "./src/eval.js",
-      "types": "./src/eval.ts"
+      "import": "./dist/eval.js",
+      "types": "./dist/eval.d.ts"
     },
     "./bridge": {
-      "import": "./src/bridge.js",
-      "types": "./src/bridge.ts"
+      "import": "./dist/bridge.js",
+      "types": "./dist/bridge.d.ts"
     },
     "./levels": {
-      "import": "./src/levels.js",
-      "types": "./src/levels.ts"
+      "import": "./dist/levels.js",
+      "types": "./dist/levels.d.ts"
     },
     "./openings": {
-      "import": "./src/openings.js",
-      "types": "./src/openings.ts"
+      "import": "./dist/openings.js",
+      "types": "./dist/openings.d.ts"
     },
     "./adaptx": {
-      "import": "./src/adaptx.js",
-      "types": "./src/adaptx.ts"
+      "import": "./dist/adaptx.js",
+      "types": "./dist/adaptx.d.ts"
     },
     "./types": {
-      "import": "./src/types.js",
-      "types": "./src/types.ts"
+      "import": "./dist/types.js",
+      "types": "./dist/types.d.ts"
     },
     "./movegen": {
-      "import": "./src/movegen.js",
-      "types": "./src/movegen.ts"
+      "import": "./dist/movegen.js",
+      "types": "./dist/movegen.d.ts"
     },
     "./tt": {
-      "import": "./src/tt.js",
-      "types": "./src/tt.ts"
+      "import": "./dist/tt.js",
+      "types": "./dist/tt.d.ts"
     },
     "./zobrist": {
-      "import": "./src/zobrist.js",
-      "types": "./src/zobrist.ts"
+      "import": "./dist/zobrist.js",
+      "types": "./dist/zobrist.d.ts"
     },
     "./perft": {
-      "import": "./src/perft.js",
-      "types": "./src/perft.ts"
+      "import": "./dist/perft.js",
+      "types": "./dist/perft.d.ts"
     }
   },
   "files": [
@@ -73,8 +73,9 @@
   "scripts": {
     "test": "vitest",
     "typecheck": "tsc --noEmit",
-    "build": "tsc",
-    "prepublishOnly": "npm test && npm run typecheck"
+    "build": "tsc -p tsconfig.json",
+    "bench": "node ./dist/perft.js || echo 'Build perft bench to dist'",
+    "prepublishOnly": "npm test && npm run typecheck && npm run build"
   },
   "keywords": [
     "chess",
