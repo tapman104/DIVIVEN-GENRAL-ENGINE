@@ -1,7 +1,7 @@
 {
-    "rootDirectory": "ux",
-    "buildCommand": "npm run build",
-    "outputDirectory": "dist",
+    "buildCommand": "cd ux && npm ci && npm run build",
+    "outputDirectory": "ux/dist",
+    "installCommand": "echo 'Dependencies installed in buildCommand'",
     "framework": "vite",
     "cleanUrls": true,
     "rewrites": [
