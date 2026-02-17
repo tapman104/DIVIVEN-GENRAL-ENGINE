@@ -1,8 +1,4 @@
 {
-    "buildCommand": "cd ux && npm ci && npm run build",
-    "outputDirectory": "ux/dist",
-    "installCommand": "echo 'Dependencies installed in buildCommand'",
-    "framework": "vite",
     "cleanUrls": true,
     "rewrites": [
         {
