@@ -75,6 +75,8 @@
     "typecheck": "tsc --noEmit",
     "build": "tsc -p tsconfig.json",
     "bench": "node ./dist/perft.js || echo 'Build perft bench to dist'",
+    "perf-test": "npm run build && node ./scripts/perf-runner.js",
+    "ci": "npm ci && npm run perf-test",
     "prepublishOnly": "npm test && npm run typecheck && npm run build"
   },
   "keywords": [

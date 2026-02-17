@@ -15,6 +15,7 @@ build/
 !ux/eslint.config.js
 !ux/verify_analysis.js
 !ux/test_env/verify_analysis.js
+!scripts/*.js
 
 # Test coverage
 coverage/
