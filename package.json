@@ -74,7 +74,8 @@
     "test": "vitest",
     "typecheck": "tsc --noEmit",
     "build": "tsc",
-    "prepublishOnly": "npm test && npm run typecheck"
+    "prepublishOnly": "npm test && npm run typecheck",
+    "start": "cd ux && npm run dev"
   },
   "keywords": [
     "chess",
