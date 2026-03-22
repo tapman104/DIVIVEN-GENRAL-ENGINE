@@ -28,6 +28,7 @@ export interface GameState {
     enPassantSquare: Square | null;
     halfMoveClock: number;
     fullMoveNumber: number;
+    history?: bigint[];
 }
 
 export interface Move {

@@ -1,4 +1,5 @@
 import { Board, Color, GameState, Piece, PieceType, Square, CastlingRights, Move } from './types.js';
+import { generateZobristKey } from './zobrist.js';
 
 export function createEmptyBoard(): Board {
     const board: Board = [];
@@ -16,6 +17,7 @@ export function cloneState(state: GameState): GameState {
         enPassantSquare: state.enPassantSquare ? { ...state.enPassantSquare } : null,
         halfMoveClock: state.halfMoveClock,
         fullMoveNumber: state.fullMoveNumber,
+        history: state.history ? [...state.history] : []
     };
 }
 
@@ -81,7 +83,8 @@ export function parseFEN(fen: string): GameState {
         castlingRights,
         enPassantSquare,
         halfMoveClock,
-        fullMoveNumber
+        fullMoveNumber,
+        history: []
     };
 }
 
@@ -126,13 +129,13 @@ export function toFEN(state: GameState): string {
     ].join(' ');
 }
 
-function parseSquare(algebraic: string): Square {
+export function parseSquare(algebraic: string): Square {
     const file = algebraic.charCodeAt(0) - 'a'.charCodeAt(0);
     const rank = 8 - parseInt(algebraic[1], 10);
     return { rank, file };
 }
 
-function squareToAlgebraic(square: Square): string {
+export function squareToAlgebraic(square: Square): string {
     const file = String.fromCharCode('a'.charCodeAt(0) + square.file);
     const rank = (8 - square.rank).toString();
     return file + rank;
@@ -239,11 +242,14 @@ export function applyMove(state: GameState, move: Move): GameState {
         nextState.enPassantSquare = null;
     }
 
-    // 4. Update Clocks
+    // 4. Update Clocks & Tracking protocol bounds
     if (piece.type === 'p' || move.isCapture) {
         nextState.halfMoveClock = 0;
+        nextState.history = []; // Irreversible move clears repetition bounds 
     } else {
         nextState.halfMoveClock++;
+        if (!nextState.history) nextState.history = [];
+        nextState.history.push(generateZobristKey(state)); // Push pre-execution key
     }
 
     if (state.turn === 'b') {
